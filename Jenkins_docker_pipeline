@@ -1,0 +1,65 @@
+pipeline {
+    agent { label "slave1" }
+    
+    triggers { 
+        pollSCM('* * * * *')  // This schedules a poll of your source code repository every minute. Adjust the schedule as needed.
+    }    
+
+    stages {
+        stage('Clone the project') {
+            steps {
+                echo 'Clone the project'
+                git branch: 'main', url: 'https://github.com/manjumunch/boxing-.git'
+              // You might want to specify the branch to check out explicitly, like 'refs/heads/main', if 'main' is your branch name.
+            }
+        }
+        stage('Coping the project') {
+            steps {
+                echo 'Verify the file where it is cloned'
+                sh 'pwd'
+                sh 'ls'
+                // You don't need triple-quotes for simple shell commands. Use single-quotes instead.
+            }
+        }
+        stage('Step3 - Docker build') {
+            steps {
+                echo 'Hello World'
+                sh 'docker build -t boxing .'
+                // It's a good practice to add a Dockerfile path after the dot if it's not in the root of your workspace.
+            }
+        }
+        stage('Step4 - Docker login') {
+            steps {
+                echo 'Hello World'
+                sh 'docker login -u manju0004 -p manjudock@123'
+                // Be careful with hardcoding the password in your pipeline. Consider using Jenkins credentials or environment variables.
+            }
+        }
+        stage('Step5 - Image tag') {
+            steps {
+                echo 'Hello World'
+                sh 'docker tag boxing manju0004/boxing'
+            }
+        }
+        stage('Step6 - Docker image push') {
+            steps {
+                echo 'Hello World'
+                sh 'docker push manju0004/boxing'
+            }
+        }
+        stage('Step7 - Docker remove container') {
+            steps {
+                echo 'Hello World'
+                sh 'docker stop mydockerimage || true'
+                sh 'docker rm mydockerimage || true'
+                // Ensure that 'mydockerimage' is the correct container name that you want to stop and remove.
+            }
+        }
+        stage('Step8 - Docker run image') {
+            steps {
+                echo 'Hello World'
+                sh 'docker run -d --name mydockerimage -p 80:80 manju0004/boxing'
+            }
+        }
+    }
+}
